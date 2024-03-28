@@ -3,12 +3,12 @@ data "aws_ami" "app_ami" {
 
   filter {
     name   = "name"
-    values = ["bitnami-tomcat-*-x86_64-hvm-ebs-nami"]
+    values = ["var.ami_filter.name"]
   }
 
   filter {
     name   = "virtualization-type"
-    values = [var.ami_filter.name]
+    values = ["hvm"]
   }
 
   owners = [var.ami_filter.owner] # Bitnami
