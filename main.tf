@@ -22,7 +22,7 @@ module "blog_vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = var.environment.name
-  cidr = "${var.environment.network_prefix}.0.0.0/16"
+  cidr = "${var.environment.network_prefix}.0.0/16"
 
   azs             = ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
   
