@@ -1,4 +1,4 @@
-data "aws_ami" "myapp_ami" {
+data "aws_ami" "example" {
   most_recent = true
 
   filter {
@@ -46,7 +46,7 @@ module "autoscaling" {
   target_group_arns   = module.blog_alb.target_group_arns
   security_groups     = [module.blog_sg.security_group_id]
 
-  image_id           = data.aws_ami.myapp_ami.id
+  image_id           = data.aws_ami.example.id
   instance_type      = var.instance_type
 }
 
