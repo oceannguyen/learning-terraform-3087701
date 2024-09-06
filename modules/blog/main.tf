@@ -16,6 +16,13 @@ module "vpc" {
     Name = "ocean-aws-for-all-vpc"
   }
 
-   # Enable Egress-Only Internet Gateway for IPv6
-  enable_egress_only_internet_gateway = true
+}
+
+# Create an Egress-Only Internet Gateway for IPv6
+resource "aws_egress_only_internet_gateway" "engress_only" {
+  vpc_id = module.vpc.vpc_id
+
+  tags = {
+    Name = "ocean-aws-egress-only-gateway"
+  }
 }
