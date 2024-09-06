@@ -7,7 +7,6 @@ module "vpc" {
   azs           = ["us-east-1a", "us-east-1b"] # Specify your availability zones
 
   enable_ipv6 = true
-  ipv6_cidr_block = "2600:1f14:abcd:1234::/64"  # Example IPv6 CIDR block
 
   public_subnets  = ["192.168.0.0/22", "192.168.4.0/22"]  # Public subnets
   private_subnets = ["192.168.8.0/22", "192.168.12.0/22"]  # Private subnets
