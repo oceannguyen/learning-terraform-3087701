@@ -1,4 +1,11 @@
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
 
-output "environment_url" {
-    value = module.blog_alb.lb_dns_name
+output "public_subnets" {
+  value = module.vpc.public_subnets
+}
+
+output "private_subnets" {
+  value = module.vpc.private_subnets
 }
