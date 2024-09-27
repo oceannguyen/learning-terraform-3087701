@@ -11,14 +11,18 @@ module "vpc" {
   public_subnets  = ["192.168.0.0/22", "192.168.4.0/22"]  # Public subnets
   private_subnets = ["192.168.8.0/22", "192.168.12.0/22"]  # Private subnets
 
-  tags = {
-    Name = "ocean-aws-for-all-vpc"
+  public_subnet_tags = {
+    Name = "ocean-aws-for-all-public"
+  }
+
+  private_subnet_tags = {
+    Name = "ocean-aws-for-all-private"
   }
 
 }
 
 # Create an Egress-Only Internet Gateway for IPv6
-resource "aws_egress_only_internet_gateway" "engress_only" {
+resource "aws_egress_only_internet_gateway" "ocean-aws-for-all-engress_only" {
   vpc_id = module.vpc.vpc_id
 
   tags = {
