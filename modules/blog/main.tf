@@ -6,8 +6,7 @@ module "vpc" {
   cidr          = "192.168.0.0/20"
   azs           = ["ap-southeast-1a", "ap-southeast-1b"] # Specify your availability zones
 
-  enable_ipv6                      = true
-  assign_generated_ipv6_cidr_block = true  # Automatically assign an IPv6 CIDR block
+  enable_ipv6   = true
 
   public_subnets  = ["192.168.0.0/22", "192.168.4.0/22"]  # Public subnets
   private_subnets = ["192.168.8.0/22", "192.168.12.0/22"]  # Private subnets
