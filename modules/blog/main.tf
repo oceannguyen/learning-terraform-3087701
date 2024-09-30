@@ -44,14 +44,6 @@ resource "aws_subnet" "public" {
   ipv6_cidr_block         = cidrsubnet(module.vpc.ipv6_cidr_block, 8, count.index) # Associate IPv6 CIDR block
 }
 
-resource "aws_egress_only_internet_gateway" "egw" {
-  vpc_id = module.vpc.vpc_id
-
-  tags = {
-    Name = "egress-only-internet-gateway"
-  }
-}
-
 # Check if an Egress-Only Internet Gateway already exists before creating a new one.
 data "aws_egress_only_internet_gateway" "existing" {
   filter {
