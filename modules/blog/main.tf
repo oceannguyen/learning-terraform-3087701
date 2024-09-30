@@ -5,9 +5,9 @@ module "vpc" {
   name          = "ocean-aws-for-all-vpc"
   cidr          = "192.168.0.0/20"
   azs           = ["ap-southeast-1a", "ap-southeast-1b"]  # Specify your availability zones
-  enable_ipv6   = true
   
-  public_subnet_assign_ipv6_address_on_creation = true
+  # enable_ipv6                                   = true
+  # public_subnet_assign_ipv6_address_on_creation = true
 
   private_subnets = [
     "192.168.0.0/22",  # First private subnet
