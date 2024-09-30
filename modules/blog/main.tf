@@ -4,7 +4,7 @@ module "vpc" {
 
   name          = "ocean-aws-for-all-vpc"
   cidr          = "192.168.0.0/20"
-  azs           = ["us-east-1a", "us-east-1b"]  # Specify your availability zones
+  azs           = ["ap-southeast-1a", "ap-southeast-1b"]  # Specify your availability zones
   enable_ipv6   = true
   assign_generated_ipv6_cidr_block = true
 
