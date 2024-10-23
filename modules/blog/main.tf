@@ -26,7 +26,7 @@ resource "aws_security_group" "web_sg" {
   description = "Allow HTTP and SSH traffic"
   vpc_id      = module.vpc.vpc_id
 
-  ingress = {
+  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
