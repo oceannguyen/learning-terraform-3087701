@@ -2,7 +2,7 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.13.0"  # Specified version
 
-  name          = "ocean-aws-for-all-vpc"
+  name          = "awsforall_vpc"
   cidr          = "192.168.0.0/20"
   azs           = ["ap-southeast-1a", "ap-southeast-1b"]  # Specify your availability zones
 
@@ -16,13 +16,21 @@ module "vpc" {
     "192.168.12.0/22"  # Second public subnet
   ]
 
+  private_subnet_tags = {
+    Name = "awsforall_private-subnet"
+  }
+
+  public_subnet_tags = {
+    Name = "awsforall_public-subnet"
+  }
+
   tags = {
-    Name = "ocean-aws-for-all-vpc"
+    Name = "awsforall_vpc"
   }
 }
 
-resource "aws_security_group" "web_sg" {
-  name        = "web_sg"
+resource "aws_security_group" "awsforall_web_sg" {
+  name        = "awsforall_web_sg"
   description = "Allow HTTP and SSH traffic"
   vpc_id      = module.vpc.vpc_id
 
@@ -48,7 +56,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   tags = {
-    Name = "Web Security Group"
+    Name = "awsforall_web_sg"
   }
 }
 
@@ -62,12 +70,12 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_instance" "web_server" {
+resource "aws_instance" "awsforall_web_server" {
   ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
   instance_type = "t2.micro"
 
   subnet_id               = module.vpc.public_subnets[0]
-  vpc_security_group_ids  = [aws_security_group.web_sg.id]
+  vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
 
   associate_public_ip_address = true
 
@@ -81,7 +89,7 @@ resource "aws_instance" "web_server" {
                                   EOF
 
   tags = {
-    Name = "Nginx Instance"
+    Name = "awsforall_web-server"
   }
 }
 
