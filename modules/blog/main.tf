@@ -108,8 +108,9 @@ resource "aws_instance" "awsforall_web_server" {
 
   user_data                   = <<-EOF
                                   #!/bin/bash
+                                  sudo yum update
                                   yum update -y
-                                  yum install -y nginx
+                                  sudo amazon-linux-extras install nginx1 -y
                                   echo "<h1>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</h1>" > /usr/share/nginx/html/index.html
                                   systemctl start nginx
                                   systemctl enable nginx
