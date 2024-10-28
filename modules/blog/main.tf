@@ -60,6 +60,33 @@ resource "aws_security_group" "awsforall_web_sg" {
   }
 }
 
+resource "aws_internet_gateway" "awsforall_main" {
+  vpc_id = module.awsforall_vpc.vpc_id
+
+  tags = {
+    Name = "Main Internet Gateway"
+  }
+}
+
+resource "aws_route_table" "awsforall_public" {
+  vpc_id = module.awsforall_vpc.vpc_id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.awsforall_main.id
+  }
+
+  tags = {
+    Name = "Public Route Table"
+  }
+}
+
+resource "aws_route_table_association" "awsforall_public_association" {
+  count = length(module.awsforall_vpc.public_subnets)
+  subnet_id = module.awsforall_vpc.public_subnets[count.index]
+  route_table_id = aws_route_table.awsforall_public.id
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["137112412989"] # Amazon's official AMIs for Amazon Linux
