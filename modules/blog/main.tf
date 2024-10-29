@@ -62,19 +62,6 @@ resource "aws_security_group" "awsforall_web_sg" {
   }
 }
 
-resource "aws_route_table" "awsforall_public" {
-  vpc_id = module.vpc.vpc_id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = module.vpc.igw_id
-  }
-
-  tags = {
-    Name = "Public Route Table"
-  }
-}
-
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["137112412989"] # Amazon's official AMIs for Amazon Linux
