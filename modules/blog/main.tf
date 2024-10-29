@@ -24,6 +24,8 @@ module "vpc" {
     Name = "awsforall_public-subnet"
   }
 
+  create_igw = true # although this is default but better to set it specifically 
+
   tags = {
     Name = "awsforall_vpc"
   }
@@ -60,20 +62,12 @@ resource "aws_security_group" "awsforall_web_sg" {
   }
 }
 
-resource "aws_internet_gateway" "awsforall_gw" {
-  vpc_id = module.vpc.vpc_id
-
-  tags = {
-    Name = "Main Internet Gateway"
-  }
-}
-
 resource "aws_route_table" "awsforall_public" {
   vpc_id = module.vpc.vpc_id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.awsforall_gw.id
+    gateway_id = module.vpc.igw_id
   }
 
   tags = {
