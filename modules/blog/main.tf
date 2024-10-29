@@ -60,7 +60,7 @@ resource "aws_security_group" "awsforall_web_sg" {
   }
 }
 
-resource "aws_internet_gateway" "awsforall_main" {
+resource "aws_internet_gateway" "awsforall_gw" {
   vpc_id = module.vpc.vpc_id
 
   tags = {
@@ -73,7 +73,7 @@ resource "aws_route_table" "awsforall_public" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.awsforall_main.id
+    gateway_id = aws_internet_gateway.awsforall_gw.id
   }
 
   tags = {
