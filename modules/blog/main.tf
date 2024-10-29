@@ -75,12 +75,6 @@ resource "aws_route_table" "awsforall_public" {
   }
 }
 
-resource "aws_route_table_association" "awsforall_public_association" {
-  count = length(module.vpc.public_subnets)
-  subnet_id = module.vpc.public_subnets[count.index]
-  route_table_id = aws_route_table.awsforall_public.id
-}
-
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["137112412989"] # Amazon's official AMIs for Amazon Linux
