@@ -9,28 +9,44 @@ resource "aws_vpc" "awsforall_vpc" {
 
 # Create Private Subnets
 resource "aws_subnet" "awsforall_private_subnet_1" {
-  vpc_id = aws_vpc.awsforall_vpc.id
-  cidr_block = "192.168.0.0/26"
+  vpc_id            = aws_vpc.awsforall_vpc.id
+  cidr_block        = "192.168.0.0/26"
   availability_zone = "ap-southeast-1a"
+
+  tags = {
+    Name = "awsforall_private_subnet_1"
+  }
 }
 
 resource "aws_subnet" "awsforall_private_subnet_2" {
-  vpc_id = aws_vpc.awsforall_vpc.id
-  cidr_block = "192.168.0.64/26"
+  vpc_id            = aws_vpc.awsforall_vpc.id
+  cidr_block        = "192.168.0.64/26"
   availability_zone = "ap-southeast-1b"
+
+  tags = {
+    Name = "awsforall_private_subnet_2"
+  }
 }
 
 # Create Public Subnets
 resource "aws_subnet" "awsforall_public_subnet_1" {
-  vpc_id = aws_vpc.awsforall_vpc.id
-  cidr_block = "192.168.0.128/26"
+  vpc_id            = aws_vpc.awsforall_vpc.id
+  cidr_block        = "192.168.0.128/26"
   availability_zone = "ap-southeast-1a"
+
+  tags = {
+    Name = "awsforall_public_subnet_1"
+  }
 }
 
 resource "aws_subnet" "awsforall_public_subnet_2" {
-  vpc_id = aws_vpc.awsforall_vpc.id
-  cidr_block = "192.168.0.192/26"
+  vpc_id            = aws_vpc.awsforall_vpc.id
+  cidr_block        = "192.168.0.192/26"
   availability_zone = "ap-southeast-1b"
+
+  tags = {
+    Name = "awsforall_public_subnet_2"
+  }
 }
 
 # Create an Internet Gateway
@@ -115,7 +131,7 @@ resource "aws_instance" "awsforall_web_server" {
   ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
   instance_type = "t2.micro"
 
-  subnet_id               = aws_subnet.awsforall_private_subnet_1.id
+  subnet_id               = aws_subnet.awsforall_public_subnet_1.id
   vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
 
   associate_public_ip_address = true
