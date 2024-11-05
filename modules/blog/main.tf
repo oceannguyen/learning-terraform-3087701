@@ -46,7 +46,7 @@ resource "aws_internet_gateway" "awsforall_igw" {
 resource "aws_route_table" "awsforall_public_r1" {
   vpc_id = aws_vpc.awsforall_vpc.id
 
-  route = {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.awsforall_igw.id
   }
