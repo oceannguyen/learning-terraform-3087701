@@ -23,13 +23,13 @@ resource "aws_subnet" "awsforall_private_subnet_2" {
 # Create Public Subnets
 resource "aws_subnet" "awsforall_public_subnet_1" {
   vpc_id = aws_vpc.awsforall_vpc.id
-  cidr_block = "192.168.0.128/22"
+  cidr_block = "192.168.0.128/26"
   availability_zone = "ap-southeast-1a"
 }
 
 resource "aws_subnet" "awsforall_public_subnet_2" {
   vpc_id = aws_vpc.awsforall_vpc.id
-  cidr_block = "192.168.0.192/22"
+  cidr_block = "192.168.0.192/26"
   availability_zone = "ap-southeast-1b"
 }
 
@@ -71,7 +71,7 @@ resource "aws_route_table_association" "public_association_2" {
 resource "aws_security_group" "awsforall_web_sg" {
   name        = "awsforall_web_sg"
   description = "Allow HTTP and SSH traffic"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.awsforall_vpc.id
 
   ingress {
     from_port   = 80
@@ -99,6 +99,7 @@ resource "aws_security_group" "awsforall_web_sg" {
   }
 }
 
+# Data source to get the latest Amazon Linux AMI
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["137112412989"] # Amazon's official AMIs for Amazon Linux
@@ -109,11 +110,12 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+# EC2 Instance Configuration
 resource "aws_instance" "awsforall_web_server" {
   ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
   instance_type = "t2.micro"
 
-  subnet_id               = module.vpc.public_subnets[0]
+  subnet_id               = aws_subnet.awsforall_private_subnet_1.id
   vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
 
   associate_public_ip_address = true
