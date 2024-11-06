@@ -127,7 +127,7 @@ data "aws_ami" "amazon_linux" {
 }
 
 # EC2 Instance Configuration
-resource "aws_instance" "awsforall_web_server" {
+resource "aws_instance" "awsforall_web_server_instance_1" {
   ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
   instance_type = "t2.micro"
 
@@ -147,7 +147,93 @@ resource "aws_instance" "awsforall_web_server" {
                                   EOF
 
   tags = {
-    Name = "awsforall_web-server"
+    Name = "awsforall_web_server_instance_1"
+  }
+}
+
+resource "aws_instance" "awsforall_web_server_instance_2" {
+  ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
+  instance_type = "t2.micro"
+
+  subnet_id               = aws_subnet.awsforall_private_subnet_2.id
+  vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
+
+  associate_public_ip_address = true
+
+  user_data                   = <<-EOF
+                                  #!/bin/bash
+                                  sudo yum update
+                                  yum update -y
+                                  sudo amazon-linux-extras install nginx1 -y
+                                  echo "<h1>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</h1>" > /usr/share/nginx/html/index.html
+                                  systemctl start nginx
+                                  systemctl enable nginx
+                                  EOF
+
+  tags = {
+    Name = "awsforall_web_server_instance_2"
+  }
+}
+
+# Create an ALB
+resource "aws_lb" "awsforall_alb" {
+  name                = "awsforall-alb"
+  internal            = false
+  load_balancer_type  = "application"
+  security_groups     = [aws_security_group.awsforall_web_sg.id]
+  subnets             = [
+    aws_subnet.awsforall_public_subnet_1.id,
+    aws_subnet.awsforall_public_subnet_2.id
+  ]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Name = "awsforall-alb"
+  }
+}
+
+# Next, create a target group for your EC2 instances.
+resource "aws_lb_target_group" "awsforall_target_group" {
+  name      = "awsforall-target-group"
+  port      = 80
+  protocol  = "HTTP"
+  vpc_id    = aws_vpc.awsforall_vpc.id
+
+  health_check {
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    path                = "/"
+    protocol            = "HTTP"
+  }
+
+  tags = {
+    Name = "awsforall-target-group"
+  }
+}
+
+# Register EC2 instances with the target group
+resource "aws_lb_target_group_attachment" "web_server_instance_1" {
+  target_group_arn = aws_lb_target_group.awsforall_target_group.arn
+  target_id        = aws_instance.awsforall_web_server_instance_1.id
+}
+
+resource "aws_lb_target_group_attachment" "web_server_instance_2" {
+  target_group_arn = aws_lb_target_group.awsforall_target_group.arn
+  target_id        = aws_instance.awsforall_web_server_instance_2.id
+}
+
+# Finally, create a listener for the ALB that routes incoming HTTP requests to the target group.
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = aws_lb.awsforall_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.awsforall_target_group.arn
   }
 }
 
