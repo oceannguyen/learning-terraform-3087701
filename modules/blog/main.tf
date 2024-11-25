@@ -155,7 +155,7 @@ resource "aws_instance" "awsforall_web_server_instance_2" {
   ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
   instance_type = "t2.micro"
 
-  subnet_id               = aws_subnet.awsforall_private_subnet_2.id
+  subnet_id               = aws_subnet.awsforall_public_subnet_2.id
   vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
 
   associate_public_ip_address = true
