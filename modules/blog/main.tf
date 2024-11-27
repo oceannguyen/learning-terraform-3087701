@@ -166,14 +166,14 @@ resource "aws_lb_target_group" "awsforall_target_group" {
 }
 
 # Launch Configuration for Auto Scaling Group
-resource "aws_launch_configuration" "awsforall_web_server_lc" {
-  name          = "awsforall_web_server_lc"
+resource "aws_launch_template" "awsforall_web_server_lt" {
+  name          = "awsforall_web_server_lt"
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
 
-  security_groups             = [aws_security_group.awsforall_web_sg.id]
+  vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
 
-  user_data                   = <<-EOF
+  user_data  = base64encode(<<-EOF
                                   #!/bin/bash
                                   sudo yum update
                                   yum update -y
@@ -182,6 +182,7 @@ resource "aws_launch_configuration" "awsforall_web_server_lc" {
                                   systemctl start nginx
                                   systemctl enable nginx
                                   EOF
+  ) 
 
   lifecycle {
     create_before_destroy = true
@@ -194,7 +195,10 @@ resource "aws_autoscaling_group" "awsforall_asg" {
   max_size          = 5
   min_size          = 1
 
-  launch_configuration = aws_launch_configuration.awsforall_web_server_lc.id
+  launch_template {
+    id      = aws_launch_template.awsforall_web_server_lt.id
+    version = "$Latest"
+  }
   vpc_zone_identifier = [
     aws_subnet.awsforall_public_subnet_1.id,
     aws_subnet.awsforall_public_subnet_2.id,
