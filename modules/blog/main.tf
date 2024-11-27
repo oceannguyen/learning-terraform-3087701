@@ -182,7 +182,11 @@ resource "aws_launch_template" "awsforall_web_server_lt" {
                                   systemctl start nginx
                                   systemctl enable nginx
                                   EOF
-  ) 
+  )
+
+  network_interfaces {
+    associate_public_ip_address = true
+  }
 
   lifecycle {
     create_before_destroy = true
