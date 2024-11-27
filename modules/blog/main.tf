@@ -126,55 +126,6 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# EC2 Instance Configuration
-resource "aws_instance" "awsforall_web_server_instance_1" {
-  ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
-  instance_type = "t2.micro"
-
-  subnet_id               = aws_subnet.awsforall_public_subnet_1.id
-  vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
-
-  associate_public_ip_address = true
-
-  user_data                   = <<-EOF
-                                  #!/bin/bash
-                                  sudo yum update
-                                  yum update -y
-                                  sudo amazon-linux-extras install nginx1 -y
-                                  echo "<h1>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</h1>" > /usr/share/nginx/html/index.html
-                                  systemctl start nginx
-                                  systemctl enable nginx
-                                  EOF
-
-  tags = {
-    Name = "awsforall_web_server_instance_1"
-  }
-}
-
-resource "aws_instance" "awsforall_web_server_instance_2" {
-  ami           = data.aws_ami.amazon_linux.id # Use an appropriate AMI ID for your region
-  instance_type = "t2.micro"
-
-  subnet_id               = aws_subnet.awsforall_public_subnet_2.id
-  vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
-
-  associate_public_ip_address = true
-
-  user_data                   = <<-EOF
-                                  #!/bin/bash
-                                  sudo yum update
-                                  yum update -y
-                                  sudo amazon-linux-extras install nginx1 -y
-                                  echo "<h1>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</h1>" > /usr/share/nginx/html/index.html
-                                  systemctl start nginx
-                                  systemctl enable nginx
-                                  EOF
-
-  tags = {
-    Name = "awsforall_web_server_instance_2"
-  }
-}
-
 # Create an ALB
 resource "aws_lb" "awsforall_alb" {
   name                = "awsforall-alb"
@@ -214,26 +165,48 @@ resource "aws_lb_target_group" "awsforall_target_group" {
   }
 }
 
-# Register EC2 instances with the target group
-resource "aws_lb_target_group_attachment" "web_server_instance_1" {
-  target_group_arn = aws_lb_target_group.awsforall_target_group.arn
-  target_id        = aws_instance.awsforall_web_server_instance_1.id
-}
+# Launch Configuration for Auto Scaling Group
+resource "aws_launch_configuration" "awsforall_web_server_lc" {
+  name          = "awsforall_web_server_lc"
+  image_id      = data.aws_ami.amazon_linux.id
+  instance_type = "t2.micro"
 
-resource "aws_lb_target_group_attachment" "web_server_instance_2" {
-  target_group_arn = aws_lb_target_group.awsforall_target_group.arn
-  target_id        = aws_instance.awsforall_web_server_instance_2.id
-}
+  security_groups             = [aws_security_group.awsforall_web_sg.id]
 
-# Finally, create a listener for the ALB that routes incoming HTTP requests to the target group.
-resource "aws_lb_listener" "http_listener" {
-  load_balancer_arn = aws_lb.awsforall_alb.arn
-  port              = 80
-  protocol          = "HTTP"
+  user_data                   = <<-EOF
+                                  #!/bin/bash
+                                  sudo yum update
+                                  yum update -y
+                                  sudo amazon-linux-extras install nginx1 -y
+                                  echo "<h1>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</h1>" > /usr/share/nginx/html/index.html
+                                  systemctl start nginx
+                                  systemctl enable nginx
+                                  EOF
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.awsforall_target_group.arn
+  lifecycle {
+    create_before_destroy = true
   }
 }
+
+# Create Auto Scaling Group
+resource "aws_autoscaling_group" "awsforall_asg" {
+  desired_capacity  = 2
+  max_size          = 5
+  min_size          = 1
+
+  launch_configuration = aws_launch_configuration.awsforall_web_server_lc.id
+  vpc_zone_identifier = [
+    aws_subnet.awsforall_public_subnet_1.id,
+    aws_subnet.awsforall_public_subnet_2.id,
+  ]
+
+  target_group_arns = [ aws_lb_target_group.awsforall_target_group.arn ]
+
+  tag {
+    key                 = "Name"
+    value               = "awsforall_asg"
+    propagate_at_launch = true
+  }
+}
+
 
