@@ -171,7 +171,11 @@ resource "aws_launch_template" "awsforall_web_server_lt" {
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
 
-  vpc_security_group_ids  = [aws_security_group.awsforall_web_sg.id]
+  # Move vpc_security_group_ids inside network_interfaces block
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups = [aws_security_group.awsforall_web_sg.id]
+  }
 
   user_data  = base64encode(<<-EOF
                                   #!/bin/bash
@@ -183,10 +187,6 @@ resource "aws_launch_template" "awsforall_web_server_lt" {
                                   systemctl enable nginx
                                   EOF
   )
-
-  network_interfaces {
-    associate_public_ip_address = true
-  }
 
   lifecycle {
     create_before_destroy = true
