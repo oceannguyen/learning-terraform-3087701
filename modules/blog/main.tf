@@ -165,6 +165,17 @@ resource "aws_lb_target_group" "awsforall_target_group" {
   }
 }
 
+resource "aws_lb_listener" "awsforall_listener" {
+  load_balancer_arn = aws_lb.awsforall_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.awsforall_target_group.arn
+  }
+}
+
 # Launch Configuration for Auto Scaling Group
 resource "aws_launch_template" "awsforall_web_server_lt" {
   name          = "awsforall_web_server_lt"
@@ -209,6 +220,7 @@ resource "aws_autoscaling_group" "awsforall_asg" {
   ]
 
   target_group_arns = [ aws_lb_target_group.awsforall_target_group.arn ]
+
 
   tag {
     key                 = "Name"
