@@ -165,6 +165,7 @@ resource "aws_lb_target_group" "awsforall_target_group" {
   }
 }
 
+# create a listener for the ALB that routes incoming HTTP requests to the target group.
 resource "aws_lb_listener" "awsforall_listener" {
   load_balancer_arn = aws_lb.awsforall_alb.arn
   port              = 80
