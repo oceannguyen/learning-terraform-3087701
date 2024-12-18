@@ -222,7 +222,6 @@ resource "aws_autoscaling_group" "awsforall_asg" {
 
   target_group_arns = [ aws_lb_target_group.awsforall_target_group.arn ]
 
-
   tag {
     key                 = "Name"
     value               = "awsforall_asg"
